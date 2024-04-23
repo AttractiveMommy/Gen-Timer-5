@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Random Group Generator</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-image: url('https://cdn.pixabay.com/photo/2015/04/19/08/32/marguerite-729510_960_720.jpg');
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+    }
+    #container {
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+    h1 {
+        margin-top: 0;
+        color: #333;
+    }
+    label {
+        display: block;
+        margin-bottom: 5px;
+        color: #555;
+    }
+    input[type="text"],
+    input[type="number"],
+    button {
+        margin-bottom: 10px;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    button {
+        background-color: #007bff;
+        color: #fff;
+        cursor: pointer;
+    }
+    button:hover {
+        background-color: #0056b3;
+    }
+    #output {
+        margin-top: 20px;
+        text-align: left;
+    }
+    .group {
+        margin-bottom: 10px;
+    }
+    #timerContainer {
+        display: none;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    #clockContainer {
+        display: none;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+</style>
+</head>
+<body>
+<div id="container">
+    <h1>Random Group Generator</h1>
+    <label for="categoryA">Enter Category A (comma separated):</label>
+    <input type="text" id="categoryA">
+    <br>
+    <label for="categoryB">Enter Category B (comma separated):</label>
+    <input type="text" id="categoryB">
+    <br>
+    <label for="groupSize">Enter group size:</label>
+    <input type="number" id="groupSize">
+    <br>
+    <button onclick="generateGroups()">Generate Groups</button>
+    <button onclick="resetFields()">Reset</button>
+    <div id="output"></div>
+    <button onclick="showTimerPage()">Timer</button>
+</div>
+
+<div id="timerContainer">
+    <h1>Timer Setup</h1>
+    <label for="time">Enter time (in seconds):</label>
+    <input type="number" id="time" placeholder="Enter time in seconds">
+    <br>
+    <label for="speed">Enter speed (in milliseconds):</label>
+    <input type="number" id="speed" placeholder="Enter speed in milliseconds">
+    <br>
+    <button onclick="startTimer()">Start Timer</button>
+    <button onclick="returnToGenerator()">Return to Generator</button>
+</div>
+
+<div id="clockContainer">
+    <h1>Countdown Timer</h1>
+    <div id="clock"></div>
+    <br>
+    <button onclick="showTimerPage()">Back to Timer Setup</button>
+</div>
+
+<script>
+    function generateGroups() {
+        const categoryAInput = document.getElementById('categoryA').value;
+        const categoryBInput = document.getElementById('categoryB').value;
+        const groupSize = parseInt(document.getElementById('groupSize').value);
+
+        const categoryAArray = categoryAInput.split(',').map(name => name.trim());
+        const categoryBArray = categoryBInput.split(',').map(name => name.trim());
+
+        if (groupSize <= 0) {
+            alert('Group size must be a positive number.');
+            return;
+        }
+
+        if (categoryAArray.length === 0 || categoryBArray.length === 0) {
+            alert('Please provide valid inputs for Category A and Category B.');
+            return;
+        }
+
+        const numGroups = Math.ceil(Math.max(categoryAArray.length, categoryBArray.length) / groupSize);
+        const groups = [];
+
+        for (let i = 0; i < numGroups; i++) {
+            const group = [];
+            for (let j = 0; j < groupSize; j++) {
+                const personA = categoryAArray[Math.floor(Math.random() * categoryAArray.length)];
+                const personB = categoryBArray[Math.floor(Math.random() * categoryBArray.length)];
+                group.push(`${personA} - ${personB}`);
+            }
+            groups.push(group);
+        }
+
+        displayGroups(groups);
+    }
+
+    function displayGroups(groups) {
+        const outputDiv = document.getElementById('output');
+        outputDiv.innerHTML = '';
+
+        groups.forEach((group, index) => {
+            const groupDiv = document.createElement('div');
+            groupDiv.classList.add('group');
+            groupDiv.innerHTML = `<strong>Group ${index + 1}:</strong> ${group.join(', ')}`;
+            outputDiv.appendChild(groupDiv);
+        });
+    }
+
+    function resetFields() {
+        document.getElementById('categoryA').value = '';
+        document.getElementById('categoryB').value = '';
+        document.getElementById('groupSize').value = '';
+        document.getElementById('output').innerHTML = '';
+    }
+
+    function showTimerPage() {
+        document.getElementById('container').style.display = 'none';
+        document.getElementById('timerContainer').style.display = 'block';
+        document.getElementById('clockContainer').style.display = 'none'; // Hide countdown timer if timer setup is shown
+    }
+
+    function returnToGenerator() {
+        document.getElementById('container').style.display = 'block';
+        document.getElementById('timerContainer').style.display = 'none';
+    }
+
+    function startTimer() {
+        const time = parseInt(document.getElementById('time').value);
+        const speed = parseInt(document.getElementById('speed').value);
+
+        if (isNaN(time) || isNaN(speed) || time <= 0 || speed <= 0) {
+            alert('Please enter valid time and speed values.');
+            return;
+        }
+
+        document.getElementById('timerContainer').style.display = 'none';
+        document.getElementById('clockContainer').style.display = 'block';
+
+        const countdownClock = document.getElementById('clock');
+        let remainingTime = time;
+
+        const countdownInterval = setInterval(() => {
+            remainingTime--;
+            if (remainingTime <= 0) {
+                clearInterval(countdownInterval);
+                countdownClock.textContent = 'Time\'s up!';
+            } else {
+                const minutes = Math.floor(remainingTime / 60);
+                const seconds = remainingTime % 60;
+                countdownClock.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+        }, speed);
+    }
+</script>
+</body>
+</html>
